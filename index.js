@@ -5,7 +5,7 @@ require('dotenv').config()
 const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express()
-const port = 5000 || process.env.PORT;
+const port = process.env.PORT || 5000;
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 //TODO: send email
@@ -159,7 +159,6 @@ async function run() {
         //! post booking
         app.post('/booking', async (req, res) => {
             const booking = req.body;
-            console.log('bk', booking);
             const query = { treatment: booking.treatment, date: booking.date, patient: booking.patient };
             const exists = await bookingCollection.findOne(query);
             if (!exists) {
