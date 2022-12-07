@@ -8,6 +8,9 @@ const app = express()
 const port = 5000 || process.env.PORT;
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
+//TODO: send email
+//TODO: live host server
+
 //! middleware
 app.use(cors())
 app.use(express.json())
@@ -81,7 +84,23 @@ async function run() {
             res.send(booking);
         })
 
-        //!patch booking single 
+        //!get treatment single 
+        app.get('/booking/review/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) }
+            const booking = await bookingCollection.findOne(query);
+            res.send(booking);
+        })
+
+        //!get booking by email
+        app.get('/booking/email/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { patient: email };
+            const booking = await bookingCollection.find(query).toArray();
+            res.send(booking);
+        })
+
+        //!patch booking single payment
         app.patch('/booking/:id', async (req, res) => {
             const id = req.params.id;
             const filter = { _id: ObjectId(id) };
@@ -93,6 +112,20 @@ async function run() {
                 }
             };
             const result = await paymentCollection.insertOne(payment);
+            const updatedBooking = await bookingCollection.updateOne(filter, updateDoc);
+            res.send(updatedBooking);
+        })
+
+        //!patch booking single review
+        app.patch('/booking/review/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const { review } = req.body;
+            const updateDoc = {
+                $set: {
+                    review: review
+                }
+            };
             const updatedBooking = await bookingCollection.updateOne(filter, updateDoc);
             res.send(updatedBooking);
         })
