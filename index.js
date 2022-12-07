@@ -9,7 +9,6 @@ const port = process.env.PORT || 5000;
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 //TODO: send email
-//TODO: live host server
 
 //! middleware
 app.use(cors())
@@ -93,7 +92,7 @@ async function run() {
         })
 
         //!get booking by email
-        app.get('/booking/email/:email', async (req, res) => {
+        app.get('/booking/email/:email', verifyJWT, async (req, res) => {
             const email = req.params.email;
             const query = { patient: email };
             const booking = await bookingCollection.find(query).toArray();
@@ -222,7 +221,6 @@ async function run() {
                 res.send({ admin: false });
             }
         })
-
 
         // ********************** barber **********************
         //! post barber
